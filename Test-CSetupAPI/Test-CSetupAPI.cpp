@@ -15,6 +15,7 @@ int main()
 		ss << "名称：" << var << std::endl;
 		ss << "ID：" << mCom.GetComID(var) << std::endl;
 	}
-	std::wcout << ss.str();
-	std::cout << "测试代码结束\n";
+	std::wcout << ss.str() << std::endl;
+	std::cout << "测试代码结束\n 回车键关闭程序";
+	int tmp=getchar();
 }

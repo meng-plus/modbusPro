@@ -29,7 +29,7 @@ int main()
 	if (m_Port.Connect() == NULL)
 	{
 		std::cout << "连接成功 测试发送" << std::endl;
-		SerialDataVec mSendData;
+		vec8_t mSendData;
 		mSendData.reserve(10);
 		for (char i = 0; i < 10; i++)
 		{

@@ -15,18 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CSerialPort.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CBasePort.cpp">
+    <ClCompile Include="CModbus_master.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CSerialPort.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CBasePort.h">
+    <ClInclude Include="CModbus_master.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

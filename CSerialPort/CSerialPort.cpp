@@ -5,13 +5,27 @@
 #include "CSerialPort.h"
 
 CSerialPort::CSerialPort()
+	:confirmation_to_ignore(false),
+	baud(115200),
+	data_bit(8),
+	stop_bit(1),
+	parity('N')
 {
 }
 
 CSerialPort::~CSerialPort()
 {
 }
-
+void CSerialPort::SetSerialPort(const uint8_t portID, bool recSt)
+{
+	char strComName[16];
+	sprintf_s(strComName, (portID < 10 ? "COM%d" : "\\\\.\\COM%d"), portID);
+	if (recSt && (w_ser.fd != INVALID_HANDLE_VALUE))
+	{
+		Close();
+	}
+	device = strComName;
+}
 bool CSerialPort::InitSerial(const char* device, int baud, char parity, int data_bit, int stop_bit)
 {
 
@@ -43,12 +57,8 @@ bool CSerialPort::InitSerial(const char* device, int baud, char parity, int data
 	confirmation_to_ignore = FALSE;
 	return true;
 }
-bool CSerialPort::InitSerial(const char portID, int baud, char parity, int data_bit, int stop_bit)
+bool CSerialPort::InitSerial(const uint8_t portID, int baud, char parity, int data_bit, int stop_bit)
 {
-	if (portID > 255)
-	{
-		return false;
-	}
 	char strComName[16];
 	sprintf_s(strComName, (portID < 10 ? "COM%d" : "\\\\.\\COM%d"), portID);
 	return InitSerial(strComName, baud, parity, data_bit, stop_bit);
@@ -63,9 +73,10 @@ int CSerialPort::Connect()
 		data_bit, stop_bit);
 #endif // _DEBUG
 	/* Set file handle to invalid */
-	w_ser.n_bytes = NULL;
-	w_ser.fd = INVALID_HANDLE_VALUE;
-
+	if (w_ser.fd != INVALID_HANDLE_VALUE)
+	{
+		Close();
+	}
 	/* ctx_rtu->device should contain a string like "COMxx:" xx being a decimal
  * number */
 	w_ser.fd = CreateFileA(device.c_str(),
@@ -254,7 +265,7 @@ int CSerialPort::send(const uint8_t* req, int req_length)
 	return 0;
 }
 
-int CSerialPort::send(SerialDataVec& reqvec)
+int CSerialPort::send(vec8_t& reqvec)
 {
 #if defined(_WIN32)
 	//	modbus_rtu_t* ctx_rtu = ctx->backend_data;
@@ -263,7 +274,7 @@ int CSerialPort::send(SerialDataVec& reqvec)
 #endif
 }
 
-int CSerialPort::read(int max_len,
+EPortMsg CSerialPort::read(int max_len,
 	const struct timeval* tv)
 {
 	COMMTIMEOUTS comm_to;
@@ -271,7 +282,7 @@ int CSerialPort::read(int max_len,
 
 	/* Check if some data still in the buffer to be consumed */
 	if (w_ser.n_bytes > 0) {
-		return 1;
+		return EPortMsg::E_Busy;
 	}
 
 	/* Setup timeouts like select() would do.
@@ -304,25 +315,26 @@ int CSerialPort::read(int max_len,
 		/* Check if some bytes available */
 		if (w_ser.n_bytes > 0) {
 			/* Some bytes read */
-			return w_ser.n_bytes;
+			return EPortMsg::E_Ok;
 		}
 		else {
 			/* Just timed out */
-			return 0;
+			return EPortMsg::E_Timeout;
 		}
 	}
 	else {
 		/* Some kind of error */
-		return -1;
+		return EPortMsg::E_ReadErr;
 	}
 }
 
-int CSerialPort::read(SerialDataVec& rec, const timeval* tv)
+EPortMsg CSerialPort::read(vec8_t& rec, const timeval* tv)
 {
-	if (read(PY_BUF_SIZE, tv))
+	EPortMsg irec = read(PY_BUF_SIZE, tv);
+	if (irec == EPortMsg::E_Ok)
 	{
 		rec.resize(w_ser.n_bytes);
 		memcpy(rec.data(), w_ser.buf, w_ser.n_bytes);
 	}
-	return w_ser.n_bytes;
+	return irec;
 }

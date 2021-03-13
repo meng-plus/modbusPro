@@ -3,14 +3,18 @@
 #if defined(_WIN32)
 #include <windows.h>
 #endif
-#include <vector>
+#include <string>
+#include "CBasePort.h"
+typedef std::vector<uint8_t> vec8_t;
 
-typedef std::vector<uint8_t> SerialDataVec;
-class CSerialPort
+class CSerialPort :public CBasePort
 {
 public:
 	CSerialPort();
 	virtual	~CSerialPort();
+	/*用户继承后，在此处添加初始化代码*/
+	//virtual void Init() {};
+	void SetSerialPort(const uint8_t portID,bool recSt=false);
 	/**初始化串口配置
 	* @param device 串口名称COM%d
 	* @param baud 波特率
@@ -30,7 +34,7 @@ public:
 * @param stop_bit 停止位标识
 * @return true 配置成功
 */
-	bool InitSerial(const char portID,
+	bool InitSerial(const uint8_t portID,
 		int baud, char parity, int data_bit,
 		int stop_bit);
 	/**启动设备连接，使用前应当执行InitSerial
@@ -45,12 +49,12 @@ public:
 	* @param req_length 数据长度
 	*/
 	int send(const uint8_t* req, int req_length);
-	int send(SerialDataVec& reqvec);
+	int send(vec8_t& reqvec);
 	/*接收数据
 	* @return 接收到数据长度
 	*/
-	int read(int max_len, const struct timeval* tv=NULL);
-	int read(SerialDataVec& rec, const struct timeval* tv=NULL);
+	EPortMsg read(int max_len, const struct timeval* tv = NULL);
+	EPortMsg read(vec8_t& rec, const struct timeval* tv = NULL);
 private:
 
 #if defined(_WIN32)
@@ -61,6 +65,7 @@ private:
 	/* WIN32: struct containing serial handle and a receive buffer */
 #define PY_BUF_SIZE 512
 	struct win32_ser {
+		win32_ser() :fd(INVALID_HANDLE_VALUE), n_bytes(NULL) {}
 		/* File handle */
 		HANDLE fd;
 		/* Receive buffer */

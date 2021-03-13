@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{5bab6390-0d71-49a1-84a0-b62001e813f1}</ProjectGuid>
-    <RootNamespace>CSerialPort</RootNamespace>
+    <ProjectGuid>{3bd1e009-cd3b-4f20-ab9b-05d0ede4d371}</ProjectGuid>
+    <RootNamespace>CModbusmaster</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,12 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CBasePort.cpp" />
-    <ClCompile Include="CSerialPort.cpp" />
+    <ClCompile Include="CModbus_master.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CBasePort.h" />
-    <ClInclude Include="CSerialPort.h" />
+    <ClInclude Include="CModbus_master.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSerialPort\CSerialPort.vcxproj">
+      <Project>{5bab6390-0d71-49a1-84a0-b62001e813f1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
